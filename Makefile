@@ -21,7 +21,7 @@ DEFINES := ${addprefix -D,\
 	F_CPU=108000000L \
 }
 
-COMPILE_ARGS := -c --target=riscv32 -march=rv32imac ${DEFINES} -O${OPTIMIZE}
+COMPILE_ARGS := -c --target=riscv32 -march=rv32imac ${DEFINES} -O${OPTIMIZE} -fno-exceptions
 LINK_ARGS    := -m elf32lriscv -T linkerxb.ld -O${OPTIMIZE}
 OBJCOPY_ARGS := -O binary -S
 DFU_ARGS     := -s ${START_LOCATION} -a ${DEVICE_ALT} -d ${DEVICE_ID}
@@ -59,7 +59,7 @@ out.bin: out.elf
 	${OBJCOPY_COMMAND} ${OBJCOPY_ARGS} $^ $@
 
 out.elf: ${OBJ}
-	${LINK_COMMAND} ${LINK_ARGS} $^ -v -o $@
+	${LINK_COMMAND} ${LINK_ARGS} $^ -o $@
 
 %.o : %.cpp
 	${CXX_COMPILE_COMMAND} ${COMPILE_ARGS} -std=${CXX_VERSION} $< $(addprefix -I, ${INCLUDES}) -o $@

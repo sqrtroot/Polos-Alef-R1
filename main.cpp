@@ -1,7 +1,8 @@
 #include <stdint.h>
-#include <gd32vf103.h>
+extern "C" {
 #include <gd32vf103_gpio.h>
 #include <gd32vf103_rcu.h>
+}
 
 void nop_loop(int nops){
   for(int i = 0; i < nops; i++){
