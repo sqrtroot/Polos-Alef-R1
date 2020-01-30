@@ -46,10 +46,14 @@ clean:
 
 force: clean all
 
-flash: out.bin flash_tool/src/dfu-util
+flash: out.dfu flash_tool/src/dfu-util
 	flash_tool/src/dfu-util -a ${DEVICE_ALT} -d ${VENDOR_ID}:${DEVICE_ID} -s ${START_LOCATION} -D $< 
 
-flash_tool/src/dfu-util: flash_tool
+%.dfu: %.bin
+	cp $< $@
+	flash_tool/src/dfu-suffix -a $@ -v ${VENDOR_ID} -p${DEVICE_ID} -d ${PROD_ID} -S 011a
+
+flash_tool/src/dfu-util flash_tool/src/dfu-suffix: flash_tool
 flash_tool/config.status:
 	cd flash_tool && ./configure
 flash_tool: flash_tool/config.status
