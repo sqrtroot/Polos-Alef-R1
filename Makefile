@@ -1,16 +1,14 @@
-.phony: all clean force flash backup
+.phony: all clean force flash backup flash_tool
 
-DEVICE_ID      := 28e9:0189
+VENDOR_ID      := 28e9
+DEVICE_ID      := 0189
 DEVICE_ALT     := 0
 START_LOCATION := 0x08000000
 
 CXX_COMPILE_COMMAND = clang++
 C_COMPILE_COMMAND   = clang
-# CXX_COMPILE_COMMAND = riscv64-linux-gnu-g++
-# C_COMPILE_COMMAND   = riscv64-linux-gnu-gcc
 LINK_COMMAND        = riscv64-linux-gnu-ld
 OBJCOPY_COMMAND     = riscv64-linux-gnu-objcopy
-DFU_COMMAND         = dfu-util
 
 OPTIMIZE    = s
 C_VERSION   = c11
@@ -24,7 +22,6 @@ DEFINES := ${addprefix -D,\
 COMPILE_ARGS := -c --target=riscv32 -march=rv32imac ${DEFINES} -O${OPTIMIZE} -fno-exceptions
 LINK_ARGS    := -m elf32lriscv -T linkerxb.ld -O${OPTIMIZE}
 OBJCOPY_ARGS := -O binary -S
-DFU_ARGS     := -s ${START_LOCATION} -a ${DEVICE_ALT} -d ${DEVICE_ID}
 
 SRCS := \
 	main.cpp \
@@ -45,18 +42,20 @@ OBJ  := $(OBJ:.S=.o)
 all: out.elf
 
 clean:
-	rm -f out.elf out.bin ${OBJ}
+	rm -f out.elf out.bin out.dfu ${OBJ}
 
 force: clean all
 
-flash: out.bin
-	${DFU_COMMAND} ${DFU_ARGS} -D $^
+flash: out.bin flash_tool/src/dfu-util
+	flash_tool/src/dfu-util -a ${DEVICE_ALT} -d ${VENDOR_ID}:${DEVICE_ID} -s ${START_LOCATION} -D $< 
 
-backup:
-	${DFU_COMMAND} ${DFU_ARGS} -U backup.bin
-
-out.bin: out.elf
-	${OBJCOPY_COMMAND} ${OBJCOPY_ARGS} $^ $@
+flash_tool/src/dfu-util: flash_tool
+flash_tool/config.status:
+	cd flash_tool && ./configure
+flash_tool: flash_tool/config.status
+	cd flash_tool && $(MAKE)
+%.bin: %.elf 
+	${OBJCOPY_COMMAND} ${OBJCOPY_ARGS} $< $@
 
 out.elf: ${OBJ}
 	${LINK_COMMAND} ${LINK_ARGS} $^ -o $@

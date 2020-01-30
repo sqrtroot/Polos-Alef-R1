@@ -1,0 +1,4 @@
+[submodule "flash_tool"]
+	path = flash_tool
+	url = https://github.com/riscv-mcu/gd32-dfu-utils.git
+	ignore = dirty
