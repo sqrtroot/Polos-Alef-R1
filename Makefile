@@ -47,7 +47,7 @@ clean:
 force: clean all
 
 flash: out.dfu flash_tool/src/dfu-util
-	flash_tool/src/dfu-util -a ${DEVICE_ALT} -d ${VENDOR_ID}:${DEVICE_ID} -s ${START_LOCATION} -D $< 
+	flash_tool/src/dfu-util -a ${DEVICE_ALT} -d ${VENDOR_ID}:${DEVICE_ID} -s ${START_LOCATION} -D $<
 
 %.dfu: %.bin
 	cp $< $@
@@ -58,7 +58,7 @@ flash_tool/config.status:
 	cd flash_tool && ./configure
 flash_tool: flash_tool/config.status
 	cd flash_tool && $(MAKE)
-%.bin: %.elf 
+%.bin: %.elf
 	${OBJCOPY_COMMAND} ${OBJCOPY_ARGS} $< $@
 
 out.elf: ${OBJ}
